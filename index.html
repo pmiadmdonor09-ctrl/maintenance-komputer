@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UTD PMI - Control Laptop 30 + Komputer 15</title>
+<style>
+:root{--red:#c00000;--dark:#222;--green:#0a8a3c;--orange:#ff7a00;--blue:#0b5ed7;--purple:#6f42c1;--bg:#f5f5f5}
+*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial}
+body{margin:0;background:var(--bg);padding-bottom:90px}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);box-shadow:0 4px 12px rgba(0,0,0,.15)}
+.header{background:var(--red);color:#fff;padding:16px}.header h2{margin:0;font-size:18px}.header p{margin:4px 0 0;font-size:12px;opacity:.9}
+.menu-tabs{display:flex;gap:8px;padding:12px 12px 0}.menu-tab{flex:1;border:none;border-radius:10px;padding:13px;font-size:13px;font-weight:800;cursor:pointer;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.menu-tab.active{background:var(--dark);color:#fff}.menu-tab.active-komp{background:var(--blue);color:#fff}
+.file-bar{background:#fff;margin:12px;border-radius:10px;padding:10px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px}
+.stats{display:flex;gap:8px;padding:0 12px 12px}.card-stat{flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.1)}.card-stat b{font-size:20px;display:block}
+.top-actions{padding:0 12px;display:flex;gap:8px}.btn-big{flex:1;border:none;border-radius:10px;padding:12px;font-size:13px;font-weight:700;color:#fff;cursor:pointer}.btn-perbaikan{background:var(--blue)}.btn-maintenance{background:var(--dark)}
+.filters{padding:12px;display:flex;gap:8px;overflow:auto}.filters button{border:1px solid #ddd;background:#fff;border-radius:20px;padding:6px 12px;font-size:12px;white-space:nowrap;cursor:pointer}.filters button.active{background:var(--dark);color:#fff}
+.list{padding:12px;display:flex;flex-direction:column;gap:10px}.item{background:#fff;border-radius:12px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,.1);border-left:5px solid #ccc}
+.item.due{border-left-color:var(--orange)}.item.done{border-left-color:var(--green)}.item.rusak{border-left-color:var(--blue);border-left-width:6px}.item.selesai-perbaikan{border-left-color:var(--purple);border-left-width:6px}
+.badge{font-size:10px;padding:3px 8px;border-radius:10px;color:#fff}.badge-due{background:var(--orange)}.badge-done{background:var(--green)}.badge-rusak{background:var(--blue)}.badge-wait{background:#888}.badge-selesai-perbaikan{background:linear-gradient(90deg,var(--green),var(--purple))}
+.meta{font-size:11px;color:#666;margin:6px 0}.actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}.btn{border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;cursor:pointer}.btn-wa{background:#25D366;color:#fff}.btn-done{background:var(--dark);color:#fff}.btn-reset{background:#eee}.btn-hapus-perbaikan{background:#ffdddd;color:#c00000;border:1px solid #ffb3b3}.btn-batal{background:#ffe6e6;color:#c00000}
+input.owner,textarea.ket,select.sel{width:100%;font-size:12px;padding:7px;border:1px solid #ddd;border-radius:6px;margin-top:4px}textarea.ket{resize:vertical;min-height:45px}.label-ket{font-size:11px;font-weight:bold;margin-top:8px;display:block;color:#444}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.notify-bar{background:#fff3cd;border:1px solid #ffe69c;padding:10px 12px;margin:12px;border-radius:8px;font-size:12px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:30;align-items:center;justify-content:center;padding:8px}.modal.show{display:flex}.modal-box{background:#fff;width:100%;max-width:520px;border-radius:14px;padding:16px;max-height:92vh;overflow:auto}.modal-box.wide{max-width:100%;width:100%;padding:10px;background:#525252}
+.history-item{display:flex;justify-content:space-between;gap:6px;padding:5px 0;border-bottom:1px dashed #ddd}
+.check-row{display:flex;align-items:center;gap:8px;padding:8px 6px;border-bottom:1px solid #eee;font-size:13px}.check-row input[type=checkbox]{width:20px;height:20px}.check-row .tglbox{font-weight:800;color:var(--green);background:#e8f5e9;padding:3px 8px;border-radius:6px;font-size:12px}
+/* ===== LEMBAR A4 - SEPERTI PDF VIEWER DI CONTOH KAKA ===== */
+.a4-wrap{background:#525252;padding:10px;display:flex;justify-content:center}
+.paper{
+  background:#fff;
+  width:297mm; height:210mm;
+  max-width:100%;
+  padding:8mm 8mm 6mm 8mm;
+  border:1px solid #000;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+}
+.paper-head{display:flex;justify-content:space-between;align-items:flex-start}
+.paper-head .left{text-align:left}.paper-head .right{text-align:right;white-space:nowrap}
+.paper h3{margin:0;font-size:13pt;line-height:1.2}.paper .sub{font-size:11pt}
+.paper-meta{display:flex;justify-content:space-between;font-size:10pt;margin:6px 0;border:1px solid #000;padding:4px 6px}
+.paper-table-wrap{width:100%;flex:1}
+table.form-kertas{width:100%;border-collapse:collapse;font-size:7pt;table-layout:fixed}table.form-kertas th,table.form-kertas td{border:1px solid #000;padding:2px 1px;text-align:center;overflow:hidden;white-space:nowrap;line-height:1.2}table.form-kertas th{background:#fff}table.form-kertas th.prog{width:17%}table.form-kertas td.left{text-align:left;font-size:7pt;white-space:normal;line-height:1.15;padding-left:3px}table.form-kertas td.filled{font-weight:400;font-size:8pt}
+.paper-foot{display:flex;justify-content:space-between;font-size:10pt;margin-top:8px}
+.paper-bottom{display:flex;justify-content:space-between;font-size:9pt;margin-top:auto;border-top:1px solid #000;padding-top:5px}
+/* HP / LAYAR KECIL: kertas di-scale biar tetap full tanpa scroll kanan-kiri */
+@media screen and (max-width:900px){
+  .a4-wrap{padding:0}
+  .paper{transform:scale(1);width:100%;height:auto;min-height:210mm}
+}
+/* PRINT: 100% PAS A4 LANDSCAPE, 1 HALAMAN, TANPA MARGIN BROWSER */
+@page{size:A4 landscape;margin:0}
+@media print{
+  body{margin:0;background:#fff;padding:0}
+  body *{visibility:hidden}
+  .print-area,.print-area *{visibility:visible}
+  .print-area{position:absolute;left:0;top:0;width:297mm;height:210mm}
+  .a4-wrap{padding:0;background:#fff}
+  .paper{width:297mm;height:210mm;max-width:none;padding:8mm 8mm 6mm 8mm;border:1px solid #000;box-shadow:none}
+  table.form-kertas{font-size:7pt}
+}
+</style>
+<style>
+/* SEMBUNYIKAN BAR DATABASE */
+.file-bar{
+  display: none !important;
+}
+</style>
+<style>
+/* SEMBUNYIKAN BAR DATABASE */
+.file-bar{
+  display: none !important;
+}
+
+/* YANG DIPILIH JADI HIJAU */
+.menu-tab.active,
+.menu-tab.active-komp{
+  background: #0a8a3c !important;
+  color: #fff !important;
+  box-shadow: 0 0 0 2px #0a8a3c inset !important;
+}
+
+/* PAS DITEKAN, AGAK GELAP SEDIKIT BIAR TERASA DIKLIK */
+.menu-tab:active{
+  transform: scale(0.97);
+}
+</style>
+</head>
+<body>
+<div class="top">
+<div class="header"><h2 id="headerTitle">🛠️ UTD PMI - CONTROL 30 LAPTOP</h2><p>Maintenance + Ceklist Perawatan Komputer & Laptop</p><p id="todayInfo"></p></div>
+<div class="menu-tabs">
+<button id="tabLaptop" class="menu-tab active" onclick="switchMenu('laptop')">💻 LAPTOP<br><span style="font-size:11px">30 Unit</span></button>
+<button id="tabKomputer" class="menu-tab" onclick="switchMenu('komputer')">🖥️ KOMPUTER<br><span style="font-size:11px">15 Unit</span></button>
+</div>
+<div class="file-bar">
+<b>📁 DATABASE:</b><span id="fileStatus">Memuat data/database_laptop.json ...</span><br>
+<input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadFile(event)">
+<button class="btn" style="background:#0b5ed7;color:#fff" onclick="document.getElementById('fileInput').click()">📂 BUKA DATABASE</button>
+<button class="btn" style="background:#0a8a3c;color:#fff" onclick="saveToFile()">💾 SIMPAN KE FILE</button>
+<button class="btn" style="background:#6f42c1;color:#fff" onclick="arsipTriwulan()">📦 TUTUP TRIWULAN</button>
+<select id="pilihTriwulan" class="sel" style="width:auto" onchange="switchTriwulan(this.value)"><option value="2026-Q4">Triwulan: 2026-Q4</option><option value="2026-Q1">2026-Q1</option><option value="2026-Q3">2026-Q3</option><option value="2027-Q1">2027-Q1</option></select>
+</div>
+<div class="stats"><div class="card-stat"><b id="totalDue">0</b><span style="font-size:11px">Jadwal</span></div><div class="card-stat"><b id="totalDone">0</b><span style="font-size:11px">Selesai</span></div><div class="card-stat"><b id="totalRusak">0</b><span style="font-size:11px">Perbaikan</span></div><div class="card-stat"><b id="totalAll">30</b><span style="font-size:11px">Total</span></div></div>
+<div class="top-actions"><button class="btn-big btn-perbaikan" onclick="openPerbaikan()">🔧 LAPOR KERUSAKAN</button><button class="btn-big btn-maintenance" onclick="requestNotif()">🔔 NOTIF</button></div>
+<div id="notifyBar" class="notify-bar" style="display:none">🔔 <span id="notifyText"></span></div>
+<div class="filters"><button class="active" onclick="filterList('all')">Semua <span id="labelSemua">30</span></button><button onclick="filterList('due')">🔶 Jadwal</button><button onclick="filterList('rusak')">🔧 Perbaikan</button><button onclick="filterList('done')">✅ Selesai</button><button onclick="exportExcel()">📊 Excel</button></div>
+</div>
+<div class="list" id="list"></div>
+
+<div id="modalPerbaikan" class="modal" onclick="if(event.target==this) closePerbaikan()"><div class="modal-box"><h3 style="margin:0">🔧 Lapor Kerusakan</h3><span class="label-ket">Pilih Perangkat</span><select id="pilihLaptop" class="sel"></select><span class="label-ket">Tanggal Kerusakan</span><input type="date" id="tglRusak" class="sel"><span class="label-ket">🔧 Perbaikan</span><textarea id="inputPerbaikan" class="ket"></textarea><span class="label-ket">🔄 Pergantian</span><textarea id="inputPergantian" class="ket"></textarea><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-big btn-perbaikan" style="flex:1" onclick="simpanPerbaikan()">💾 SIMPAN</button><button class="btn-big btn-maintenance" style="flex:1;background:#888" onclick="closePerbaikan()">Batal</button></div></div></div>
+
+<div id="modalMaint" class="modal" onclick="if(event.target==this) closeMaint()"><div class="modal-box"><h3 style="margin:0">🛠️ MAINTENANCE - Pilih Yang Dikerjakan</h3><div id="maintHeader" style="font-size:12px;background:#e8f5e9;padding:8px;border-radius:8px;margin-top:8px"></div><p style="font-size:11px;background:#fff3cd;padding:8px;border-radius:8px">Centang di sini = langsung masuk ke Form Bukti Ceklist. Tanggal otomatis dari jadwal. Contoh LAPTOP-01 tanggal 6, centang Update Anti Virus -> di form nanti tertulis <b>6</b>.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><div><span class="label-ket">Tanggal Maintenance (bisa diubah)</span><input type="date" id="maintTanggal" class="sel"></div><div><span class="label-ket">Pekan Otomatis</span><input id="maintPekanInfo" class="owner" readonly></div></div><div id="maintItems"></div><span class="label-ket">Catatan</span><textarea id="maintCatatan" class="ket" placeholder="Contoh: Antivirus sudah update, casing dibersihkan..."></textarea><div class="grid2"><div><span class="label-ket">Dikerjakan Oleh</span><input id="maintOleh" class="owner" placeholder="Nama teknisi"></div><div><span class="label-ket">Disahkan Oleh</span><input id="maintDisahkan" class="owner" placeholder="Nama yang mengesahkan"></div></div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn-big" style="background:var(--green)" onclick="simpanMaint()">✅ SIMPAN MAINTENANCE</button><button class="btn-big" style="background:#888" onclick="closeMaint()">Batal</button></div></div></div>
+
+<div id="modalCeklist" class="modal" onclick="if(event.target==this) closeCeklist()"><div class="modal-box wide"><div id="printArea" class="print-area"></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn-big" style="background:var(--dark)" onclick="window.print()">🖨️ PRINT / PDF - A4 Landscape Pas 1 Halaman</button><button class="btn-big" style="background:#888" onclick="closeCeklist()">Tutup</button></div><p style="font-size:11px;text-align:center;color:#fff">Tampilan PDF viewer. Salinan Terkendali KS11.</p></div></div>
+
+<script>
+let menuAktif='laptop', filter='all', triwulanAktif='2026-Q4', maintId=null;
+let DB={laptop:{},komputer:{}};
+const ITEMS_LAPTOP_SOFTWARE=["Disk Defragmenter","Registry Defrag","Registry Cleanup","Bit Defender, Scan Virus","Update Anti Virus","Deleting Temporary File","Advance System Care","Backup Data","Disk Cleanup"];
+const ITEMS_LAPTOP_HARDWARE=["Membersihkan Casing Luar","Membersihkan Mousepad","Membersihkan Keyboard","Membersihkan Monitor","Mengecek Kondisi Print Kartu"];
+const ITEMS_KOMPUTER_SOFTWARE=["Disk Defragmenter","Registry Defrag","Registry Cleanup","Bit Defender Scan Virus","Update Anti Virus","Deleting Temporary File","Advance System Care","Backup Data","Disk Cleanup"];
+const ITEMS_KOMPUTER_HARDWARE=["Membersihkan Casing Luar","Membersihkan Power Supply","Membersihkan Mouse","Membersihkan Casing Dalam","Membersihkan Keyboard","Membersihkan Monitor","Membersihkan Motherboard","Membersihkan HDD","Mengecek Putaran Fan","Mengecek Expantion Card","Mengecek Kondisi Print Kertas","Mengecek Kondisi Print Label"];
+const ITEMS_KOMPUTER_JARINGAN=["Maintenance Komputer Server","Cek Konektifitas STC-CTS","Cek Kondisi Lan Cable UTP"];
+function getAllItems(){
+  if(menuAktif==='komputer'){
+    return [...ITEMS_KOMPUTER_SOFTWARE.map(x=>({kat:"SOFTWARE",nama:x})),...ITEMS_KOMPUTER_HARDWARE.map(x=>({kat:"HARDWARE",nama:x})),...ITEMS_KOMPUTER_JARINGAN.map(x=>({kat:"JARINGAN",nama:x}))];
+  }
+  return [...ITEMS_LAPTOP_SOFTWARE.map(x=>({kat:"SOFTWARE",nama:x})),...ITEMS_LAPTOP_HARDWARE.map(x=>({kat:"HARDWARE",nama:x}))];
+}
+const ALL_ITEMS=getAllItems();
+const BULAN=["JANUARI","FEBRUARI","MARET","APRIL","MEI","JUNI","JULI","AGUSTUS","SEPTEMBER","OKTOBER","NOVEMBER","DESEMBER"];
+const jadwalLaptop=[
+{id:"LAPTOP-01",tgl:"2026-10-06",jam:"13:00-14:30",hari:"Selasa, 06 Okt 2026"},{id:"LAPTOP-02",tgl:"2026-10-06",jam:"13:00-14:30",hari:"Selasa, 06 Okt 2026"},
+{id:"LAPTOP-03",tgl:"2026-10-08",jam:"13:00-14:30",hari:"Kamis, 08 Okt 2026"},{id:"LAPTOP-04",tgl:"2026-10-08",jam:"13:00-14:30",hari:"Kamis, 08 Okt 2026"},
+{id:"LAPTOP-05",tgl:"2026-10-09",jam:"10:00-12:00",hari:"Jumat, 09 Okt 2026"},{id:"LAPTOP-06",tgl:"2026-10-09",jam:"10:00-12:00",hari:"Jumat, 09 Okt 2026"},
+{id:"LAPTOP-07",tgl:"2026-10-09",jam:"10:00-12:00",hari:"Jumat, 09 Okt 2026"},{id:"LAPTOP-08",tgl:"2026-10-13",jam:"13:00-14:30",hari:"Selasa, 13 Okt 2026"},
+{id:"LAPTOP-09",tgl:"2026-10-13",jam:"13:00-14:30",hari:"Selasa, 13 Okt 2026"},{id:"LAPTOP-10",tgl:"2026-10-15",jam:"13:00-14:30",hari:"Kamis, 15 Okt 2026"},
+{id:"LAPTOP-11",tgl:"2026-10-15",jam:"13:00-14:30",hari:"Kamis, 15 Okt 2026"},{id:"LAPTOP-12",tgl:"2026-10-16",jam:"10:00-12:00",hari:"Jumat, 16 Okt 2026"},
+{id:"LAPTOP-13",tgl:"2026-10-16",jam:"10:00-12:00",hari:"Jumat, 16 Okt 2026"},{id:"LAPTOP-14",tgl:"2026-10-16",jam:"10:00-12:00",hari:"Jumat, 16 Okt 2026"},
+{id:"LAPTOP-15",tgl:"2026-10-20",jam:"13:00-14:30",hari:"Selasa, 20 Okt 2026"},{id:"LAPTOP-16",tgl:"2026-10-20",jam:"13:00-14:30",hari:"Selasa, 20 Okt 2026"},
+{id:"LAPTOP-17",tgl:"2026-10-22",jam:"13:00-14:30",hari:"Kamis, 22 Okt 2026"},{id:"LAPTOP-18",tgl:"2026-10-22",jam:"13:00-14:30",hari:"Kamis, 22 Okt 2026"},
+{id:"LAPTOP-19",tgl:"2026-10-23",jam:"10:00-12:00",hari:"Jumat, 23 Okt 2026"},{id:"LAPTOP-20",tgl:"2026-10-23",jam:"10:00-12:00",hari:"Jumat, 23 Okt 2026"},
+{id:"LAPTOP-21",tgl:"2026-10-23",jam:"10:00-12:00",hari:"Jumat, 23 Okt 2026"},{id:"LAPTOP-22",tgl:"2026-10-27",jam:"13:00-14:30",hari:"Selasa, 27 Okt 2026"},
+{id:"LAPTOP-23",tgl:"2026-10-27",jam:"13:00-14:30",hari:"Selasa, 27 Okt 2026"},{id:"LAPTOP-24",tgl:"2026-10-27",jam:"13:00-14:30",hari:"Selasa, 27 Okt 2026"},
+{id:"LAPTOP-25",tgl:"2026-10-29",jam:"13:00-14:30",hari:"Kamis, 29 Okt 2026"},{id:"LAPTOP-26",tgl:"2026-10-29",jam:"13:00-14:30",hari:"Kamis, 29 Okt 2026"},
+{id:"LAPTOP-27",tgl:"2026-10-29",jam:"13:00-14:30",hari:"Kamis, 29 Okt 2026"},{id:"LAPTOP-28",tgl:"2026-10-30",jam:"10:00-12:00",hari:"Jumat, 30 Okt 2026"},
+{id:"LAPTOP-29",tgl:"2026-10-30",jam:"10:00-12:00",hari:"Jumat, 30 Okt 2026"},{id:"LAPTOP-30",tgl:"2026-10-30",jam:"10:00-12:00",hari:"Jumat, 30 Okt 2026"},
+];
+const jadwalKomputer=[
+{id:"KOMPUTER-01",tgl:"2026-03-02",jam:"09:00-10:30",hari:"Senin, 02 Mar 2026"},{id:"KOMPUTER-02",tgl:"2026-03-02",jam:"09:00-10:30",hari:"Senin, 02 Mar 2026"},
+{id:"KOMPUTER-03",tgl:"2026-03-02",jam:"09:00-10:30",hari:"Senin, 02 Mar 2026"},{id:"KOMPUTER-04",tgl:"2026-03-03",jam:"09:00-10:30",hari:"Selasa, 03 Mar 2026"},
+{id:"KOMPUTER-05",tgl:"2026-03-03",jam:"09:00-10:30",hari:"Selasa, 03 Mar 2026"},{id:"KOMPUTER-06",tgl:"2026-03-03",jam:"09:00-10:30",hari:"Selasa, 03 Mar 2026"},
+{id:"KOMPUTER-07",tgl:"2026-03-04",jam:"13:00-14:30",hari:"Rabu, 04 Mar 2026"},{id:"KOMPUTER-08",tgl:"2026-03-04",jam:"13:00-14:30",hari:"Rabu, 04 Mar 2026"},
+{id:"KOMPUTER-09",tgl:"2026-03-04",jam:"13:00-14:30",hari:"Rabu, 04 Mar 2026"},{id:"KOMPUTER-10",tgl:"2026-03-05",jam:"13:00-14:30",hari:"Kamis, 05 Mar 2026"},
+{id:"KOMPUTER-11",tgl:"2026-03-05",jam:"13:00-14:30",hari:"Kamis, 05 Mar 2026"},{id:"KOMPUTER-12",tgl:"2026-03-05",jam:"13:00-14:30",hari:"Kamis, 05 Mar 2026"},
+{id:"KOMPUTER-13",tgl:"2026-03-06",jam:"10:00-12:00",hari:"Jumat, 06 Mar 2026"},{id:"KOMPUTER-14",tgl:"2026-03-06",jam:"10:00-12:00",hari:"Jumat, 06 Mar 2026"},
+{id:"KOMPUTER-15",tgl:"2026-03-06",jam:"10:00-12:00",hari:"Jumat, 06 Mar 2026"},
+];
+function getJadwal(){return menuAktif==='laptop'?jadwalLaptop:jadwalKomputer;}
+function getKey(){return menuAktif==='laptop'?'laptop_maint_v4':'komputer_maint_v1';}
+function getLabel(){return menuAktif==='laptop'?'Laptop':'Komputer';}
+function getPekan(tglStr){let d=parseInt(tglStr.split('-')[2]);if(d<=7)return 1;if(d<=14)return 2;if(d<=21)return 3;if(d<=28)return 4;return 5;}
+function getTglNum(tglStr){return parseInt(tglStr.split('-')[2]);}
+function getBulanNum(tglStr){return parseInt(tglStr.split('-')[1]);}
+function getTahunNum(tglStr){return parseInt(tglStr.split('-')[0]);}
+function switchMenu(m){menuAktif=m;filter='all';document.getElementById('tabLaptop').className='menu-tab'+(m==='laptop'?' active':'');document.getElementById('tabKomputer').className='menu-tab'+(m==='komputer'?' active-komp':'');document.getElementById('headerTitle').innerText=m==='laptop'?'🛠️ UTD PMI - CONTROL 30 LAPTOP':'🛠️ UTD PMI - CONTROL 15 KOMPUTER';document.getElementById('totalAll').innerText=m==='laptop'?'30':'15';document.getElementById('labelSemua').innerText=m==='laptop'?'30':'15';document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.filters button')[0].classList.add('active');render();}
+function switchTriwulan(t){triwulanAktif=t;render();}
+function loadData(){let fromFile=DB[menuAktif]||{};let fromLS={};try{fromLS=JSON.parse(localStorage.getItem(getKey())||'{}');}catch(e){}let merged=JSON.parse(JSON.stringify(fromFile));Object.assign(merged,fromLS);return merged;}
+function saveData(d){DB[menuAktif]=JSON.parse(JSON.stringify(d));try{localStorage.setItem(getKey(),JSON.stringify(d));localStorage.setItem(getKey()+'_'+triwulanAktif,JSON.stringify(d));}catch(e){}}
+async function autoLoad(){try{const r1=await fetch('data/database_laptop.json');if(r1.ok){const j=await r1.json();if(j.laptop)DB.laptop=j.laptop;if(j.komputer&&Object.keys(j.komputer).length)DB.komputer=j.komputer;document.getElementById('fileStatus').innerText='✅ Database Laptop dari file';document.getElementById('fileStatus').style.color='green';}}catch(e){}try{const r2=await fetch('data/database_komputer.json');if(r2.ok){const j2=await r2.json();if(j2.komputer)DB.komputer=j2.komputer;else if(j2['KOMPUTER-01'])DB.komputer=j2;}}catch(e){}render();}
+function saveToFile(){const only=menuAktif==='laptop'?{triwulan:triwulanAktif,menu:'laptop',exportedAt:new Date().toISOString(),laptop:DB.laptop,komputer:{}}:{triwulan:triwulanAktif,menu:'komputer',exportedAt:new Date().toISOString(),laptop:{},komputer:DB.komputer};const blob=new Blob([JSON.stringify(only,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=menuAktif==='laptop'?'database_laptop.json':'database_komputer.json';a.click();alert('✅ File '+a.download+' ter-download! Timpa ke folder data/');}
+function loadFile(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const j=JSON.parse(r.result);if(j.laptop)DB.laptop=j.laptop;if(j.komputer)DB.komputer=j.komputer;if(!j.laptop&&!j.komputer){if(menuAktif==='laptop')DB.laptop=j;else DB.komputer=j;}saveData(loadData());document.getElementById('fileStatus').innerText='✅ Database dibuka: '+f.name;render();alert('✅ Database '+f.name+' berhasil dibuka!');}catch(err){alert('❌ File bukan JSON valid');}};r.readAsText(f);}
+function arsipTriwulan(){if(!confirm('Tutup Triwulan '+triwulanAktif+'? Ceklist per bulan TETAP, status Selesai di-reset.'))return;const data=loadData();const blob=new Blob([JSON.stringify({triwulan:triwulanAktif,menu:menuAktif,data},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=triwulanAktif+'_'+menuAktif+'.json';a.click();Object.keys(data).forEach(k=>{data[k].done=false;data[k].doneDate='';data[k].history=[];});saveData(data);alert('✅ Triwulan diarsipkan.');render();}
+function render(){
+ const jadwal=getJadwal();const saved=loadData();const today=new Date().toISOString().split('T')[0];
+ document.getElementById('todayInfo').innerText="Hari ini: "+new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'})+" | Triwulan: "+triwulanAktif;
+ const container=document.getElementById('list');container.innerHTML='';let due=0,done=0,rusak=0,dueList=[];
+ jadwal.forEach(j=>{const s=saved[j.id]||{owner:"",wa:"",inventaris:"",spek:"",done:false,doneDate:"",history:[],checklist:{}};const isPast=j.tgl<=today;const isDue=isPast&&!s.done;const isRusak=s.history&&s.history.length>0;const isSelesaiPerbaikan=isRusak&&s.done;if(isRusak)rusak++;if(s.done)done++;else if(isPast)due++;if(isDue)dueList.push(j.id);const show=(filter==='all')||(filter==='due'&&isDue)||(filter==='done'&&(s.done||isSelesaiPerbaikan))||(filter==='rusak'&&isRusak);if(!show)return;const div=document.createElement('div');div.className='item '+(isSelesaiPerbaikan?'selesai-perbaikan':(isRusak?'rusak':(s.done?'done':(isDue?'due':''))));let badge='';if(isSelesaiPerbaikan)badge='<span class="badge badge-selesai-perbaikan">✅ 🔧 SELESAI + PERBAIKAN</span>';else if(isRusak)badge='<span class="badge badge-rusak">🔧 PERBAIKAN</span>';else if(s.done)badge='<span class="badge badge-done">✅ Selesai Maint</span>';else if(isDue)badge='<span class="badge badge-due">🔶 JADWAL</span>';else badge='<span class="badge badge-wait">⏳ Menunggu</span>';
+ let cekInfo='';const cekKeys=Object.keys(s.checklist||{});if(cekKeys.length>0){let totalItem=0;cekKeys.forEach(k=>totalItem+=Object.keys(s.checklist[k].items||{}).length);cekInfo=`<div style="background:#e8f5e9;padding:6px;border-radius:6px;font-size:11px;margin-top:6px">📋 <b>Bukti tersimpan:</b> ${cekKeys.join(', ')} - Total ${totalItem} item tercentang</div>`;}
+ let hist='';if(isRusak)hist=`<div style="background:#eef4ff;padding:8px;border-radius:8px;margin-top:8px;font-size:11px"><b>📋 Riwayat Perbaikan:</b>${s.history.map((h,idx)=>`<div class="history-item"><div>• ${h.tgl}: 🔧 ${h.perbaikan} ${h.pergantian?`<br>🔄 ${h.pergantian}`:''}</div><button class="btn btn-hapus-perbaikan" onclick="hapusPerbaikan('${j.id}',${idx})">❌</button></div>`).join('')}<div style="display:flex;gap:6px;margin-top:8px"><button class="btn btn-batal" style="flex:1" onclick="batalPerbaikanTerakhir('${j.id}')">↩️ Batal Terakhir</button><button class="btn" style="flex:1;background:#c00000;color:#fff" onclick="hapusSemuaPerbaikan('${j.id}')">🗑️ Hapus Semua</button></div></div>`;
+ const labelSpek=menuAktif==='laptop'?'💻 Spesifikasi Laptop':'🖥️ Spesifikasi Komputer';
+ div.innerHTML=`<div style="display:flex;justify-content:space-between"><h4 style="margin:0">${j.id} ${s.owner?'- '+s.owner:''}</h4>${badge}</div><div class="meta">📅 ${j.hari} | 🕐 ${j.jam} | Maint: ${s.done?'✅ '+s.doneDate:'Belum'}</div><div class="grid2"><div><span class="label-ket">🏷️ No Inventaris</span><input class="owner" id="inv_${j.id}" value="${s.inventaris||''}" onchange="updateField('${j.id}','inventaris')"></div><div><span class="label-ket">👤 Pemilik / Ruangan</span><input class="owner" id="owner_${j.id}" value="${s.owner||''}" onchange="updateField('${j.id}','owner')"></div></div><span class="label-ket">${labelSpek}</span><textarea class="ket" id="spek_${j.id}" placeholder="Contoh: Lenovo Slim 3 / i3 / RAM 8GB / SSD 256GB" onchange="updateSpek('${j.id}')">${s.spek||''}</textarea><input class="owner" id="wa_${j.id}" placeholder="WA 628xxx" value="${s.wa||''}" onchange="updateField('${j.id}','wa')">${cekInfo}${hist}<div class="actions"><button class="btn btn-wa" onclick="sendWA('${j.id}')">📱 WA</button><button class="btn" style="background:var(--green);color:#fff" onclick="openMaint('${j.id}')">🛠️ MAINTENANCE (Centang Di Sini)</button><button class="btn" style="background:#6f42c1;color:#fff" onclick="openCeklist('${j.id}')">📋 BUKTI CEKLIST (Lihat Form)</button><button class="btn" style="background:#0b5ed7;color:#fff" onclick="openPerbaikan('${j.id}')">🔧 + Perbaikan</button>${s.done?`<button class="btn btn-reset" onclick="resetDone('${j.id}')">↩️ Batal Maint</button>`:''}<button class="btn" style="background:#ffe69c" onclick="saveAll('${j.id}')">💾 Simpan</button></div>`;container.appendChild(div);});
+ document.getElementById('totalDue').innerText=due;document.getElementById('totalDone').innerText=done;document.getElementById('totalRusak').innerText=rusak;
+ const bar=document.getElementById('notifyBar');if(dueList.length>0||rusak>0){bar.style.display='block';document.getElementById('notifyText').innerText=(dueList.length>0?`Jadwal ${getLabel()}: ${dueList.join(', ')}. `:'')+(rusak>0?`${rusak} ${getLabel().toLowerCase()} ada perbaikan.`:'');}else bar.style.display='none';
+}
+function openMaint(id){
+ maintId=id;const jadwal=getJadwal().find(x=>x.id===id);const saved=loadData();const s=saved[id]||{checklist:{}};
+ const tglJadwal=jadwal.tgl;const bulan=getBulanNum(tglJadwal);const pekan=getPekan(tglJadwal);const tglNum=getTglNum(tglJadwal);
+ document.getElementById('maintHeader').innerHTML=`<b>${id}</b> - ${s.owner||'-'} | ${s.inventaris||''}<br>Jadwal: <b>${jadwal.hari} | ${jadwal.jam}</b><br>Bulan: <b>${BULAN[bulan-1]}</b> | Pekan: <b>${pekan}</b> | Tanggal yang akan terisi otomatis: <b>${tglNum}</b>`;
+ document.getElementById('maintTanggal').value=tglJadwal;document.getElementById('maintPekanInfo').value='Pekan '+pekan+' (Tgl '+tglNum+')';
+ const key=`${getTahunNum(tglJadwal)}-${String(bulan).padStart(2,'0')}-P${pekan}`;const existing=(s.checklist&&s.checklist[key])||{items:{}};
+ document.getElementById('maintCatatan').value=existing.catatan||'';document.getElementById('maintOleh').value=existing.oleh||'';document.getElementById('maintDisahkan').value=existing.disahkan||'';
+ let html='';let lastKat='';
+getAllItems().forEach((it,idx)=>{
+  if(it.kat!==lastKat){html+=`<div style="background:#222;color:#fff;padding:6px;border-radius:6px;margin-top:10px;font-size:11px;font-weight:800">${it.kat}</div>`;lastKat=it.kat;}
+  const checked=existing.items[it.nama]!==undefined;
+  html+=`<div class="check-row"><input type="checkbox" id="m_${idx}" ${checked?'checked':''}><label style="flex:1" for="m_${idx}">${it.nama}</label><span class="tglbox">Jika dicentang -> terisi ${tglNum}</span></div>`;
+ });
+ document.getElementById('maintItems').innerHTML=html;
+ document.getElementById('maintTanggal').onchange=()=>{const v=document.getElementById('maintTanggal').value;if(v){document.getElementById('maintPekanInfo').value='Pekan '+getPekan(v)+' (Tgl '+getTglNum(v)+')';}};
+ document.getElementById('modalMaint').classList.add('show');
+}
+function closeMaint(){document.getElementById('modalMaint').classList.remove('show');}
+function simpanMaint(){
+ if(!maintId)return;
+ const tglInput=document.getElementById('maintTanggal').value;
+ if(!tglInput){alert('Pilih tanggal maintenance');return;}
+ const bulan=getBulanNum(tglInput);const pekan=getPekan(tglInput);const tglNum=getTglNum(tglInput);const tahun=getTahunNum(tglInput);
+ const key=`${tahun}-${String(bulan).padStart(2,'0')}-P${pekan}`;
+ const saved=loadData();if(!saved[maintId])saved[maintId]={history:[],checklist:{}};if(!saved[maintId].checklist)saved[maintId].checklist={};
+ const items={};let count=0;
+ getAllItems().forEach((it,idx)=>{const cb=document.getElementById('m_'+idx);if(cb.checked){items[it.nama]=tglNum;count++;}});
+
+ // === KUNCI SUDAH DIBUKA ===
+ // Kalau count = 0, artinya Kaka mau HAPUS semua centang di minggu ini
+ if(count===0){
+   if(confirm('Kaka tidak centang apa-apa. Hapus semua centang untuk minggu ini?')){
+     delete saved[maintId].checklist[key];
+     // Kalau sudah tidak ada lagi ceklist lain, status jadi Belum
+     if(Object.keys(saved[maintId].checklist).length===0){
+       saved[maintId].done=false; saved[maintId].doneDate='';
+     }
+     saveData(saved);closeMaint();render();
+     alert('✅ Centang berhasil dihapus. Kaka bisa centang ulang lagi.');
+     return;
+   } else {
+     return;
+   }
+ }
+
+ saved[maintId].checklist[key]={bulan:BULAN[bulan-1],pekan:pekan,tahun:tahun,items:items,catatan:document.getElementById('maintCatatan').value,disahkan:document.getElementById('maintDisahkan').value,oleh:document.getElementById('maintOleh').value,savedAt:new Date().toISOString(),tanggalMaintenance:tglInput};
+ saved[maintId].done=true;saved[maintId].doneDate=new Date(tglInput).toLocaleDateString('id-ID');
+ saveData(saved);closeMaint();render();
+ alert(`✅ MAINTENANCE TERSIMPAN!\n${maintId} - ${BULAN[bulan-1]} Pekan ${pekan} - ${count} item`);
+}
+function openCeklist(id){
+ const jadwal=getJadwal().find(x=>x.id===id);const saved=loadData();const s=saved[id]||{checklist:{}};
+ const tahun=jadwal.tgl.split('-')[0];
+ const isKomputer=menuAktif==='komputer';
+ const kodeForm=isKomputer?'UTDMKS/L4/IC/01':'UTDMKS/L4/IC/12';
+ const judulForm=isKomputer?'Cek List Perawatan Hardware, Software dan Jaringan':'Cek List Perawatan Hardware, Software Laptop';
+ const labelLokasi=isKomputer?`Lokasi : <b>${s.owner||'-'}</b>`:`Jenis Laptop/Lokasi : <b>${s.spek||'-'} / ${s.owner||'-'}</b>`;
+ const itemsAktif=getAllItems();
+ let header1=`<tr><th rowspan="3" class="prog">PROGRAM PERAWATAN</th><th colspan="60">WAKTU PERAWATAN</th></tr><tr>`;BULAN.forEach(b=>{header1+=`<th colspan="5">${b}</th>`;});header1+=`</tr>`;
+ let header2=`<tr>`;BULAN.forEach(()=>{header2+=`<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`;});header2+=`</tr>`;
+ // header1 di atas sudah ada 2 baris, kita pakai yang benar:
+ header1=`<tr><th rowspan="3" class="prog">PROGRAM PERAWATAN</th><th colspan="60">WAKTU PERAWATAN</th></tr><tr>`;BULAN.forEach(b=>{header1+=`<th colspan="5">${b}</th>`;});header1+=`</tr>`;
+ let rows='';
+ let lastKat='';
+ itemsAktif.forEach(it=>{
+  if(it.kat!==lastKat){rows+=`<tr><td class="left" colspan="61" style="background:#eee;font-weight:800">${it.kat}</td></tr>`;lastKat=it.kat;}
+  rows+=`<tr><td class="left">${it.nama}</td>`;
+  for(let b=1;b<=12;b++){
+   for(let p=1;p<=5;p++){
+    let val='';
+    Object.values(s.checklist||{}).forEach(c=>{
+     const bulanIdx=BULAN.indexOf(c.bulan)+1;
+     if(bulanIdx===b && String(c.pekan)===String(p) && c.items && c.items[it.nama]!==undefined){val=c.items[it.nama];}
+    });
+    rows+=`<td class="${val!==''?'filled':''}">${val}</td>`;
+   }
+  }
+  rows+=`</tr>`;
+ });
+ const lastEntry=Object.values(s.checklist||{}).pop()||{};
+ document.getElementById('printArea').innerHTML=`
+ <div class="a4-wrap"><div class="paper">
+ <div class="paper-head">
+   <div class="left"><h3>UNIT TRANSFUSI DARAH PMI KOTA MAKASSAR</h3><div class="sub">${judulForm}</div></div>
+   <div class="right"><div style="font-size:11px">${kodeForm}</div><div style="font-size:11px">Revisi : 005</div></div>
+ </div>
+ <div class="paper-meta"><span>${labelLokasi}</span><span>Tahun : <b>${tahun}</b></span></div>
+ <div class="paper-table-wrap"><table class="form-kertas"><thead>${header1}${header2}</thead><tbody>${rows}</tbody></table></div>
+ <div style="font-size:10pt;margin-top:6px">Catatan : Kolom diisi dengan tanggal perawatan</div>
+ <div class="paper-foot"><span>Disahkan Oleh :<br><br><b>${lastEntry.disahkan||''}</b></span><span>Kode: KS // Paraf :<br><br></span></div>
+ <div class="paper-bottom"><span>Tanggal Efektif : 09 Januari 2025</span><span>Halaman 1 dari 1</span></div>
+ </div></div>`;
+ document.getElementById('modalCeklist').classList.add('show');
+}
+function closeCeklist(){document.getElementById('modalCeklist').classList.remove('show');}
+function updateField(id,f){const s=loadData();if(!s[id])s[id]={history:[],checklist:{}};const m={owner:'owner_',wa:'wa_',inventaris:'inv_'};s[id][f]=document.getElementById(m[f]+id).value;saveData(s);}
+function updateSpek(id){const s=loadData();if(!s[id])s[id]={history:[],checklist:{}};s[id].spek=document.getElementById('spek_'+id).value;saveData(s);}
+function saveAll(id){const s=loadData();if(!s[id])s[id]={history:[],checklist:{}};s[id].owner=document.getElementById('owner_'+id).value;s[id].wa=document.getElementById('wa_'+id).value;s[id].inventaris=document.getElementById('inv_'+id).value;s[id].spek=document.getElementById('spek_'+id).value;saveData(s);alert('✅ Data '+id+' tersimpan! Klik 💾 SIMPAN KE FILE biar masuk ke folder data/.');render();}
+function openPerbaikan(p=null){const jadwal=getJadwal();const s=loadData();const sel=document.getElementById('pilihLaptop');sel.innerHTML='';let has=false;jadwal.forEach(j=>{const d=s[j.id];if(d&&d.done){const o=document.createElement('option');o.value=j.id;o.text=`${j.id} - ${d.owner||''}`;if(p===j.id)o.selected=true;sel.appendChild(o);has=true;}});if(!has)sel.innerHTML='<option value="">Belum ada yang selesai</option>';document.getElementById('tglRusak').valueAsDate=new Date();document.getElementById('inputPerbaikan').value='';document.getElementById('inputPergantian').value='';document.getElementById('modalPerbaikan').classList.add('show');}
+function closePerbaikan(){document.getElementById('modalPerbaikan').classList.remove('show');}
+function simpanPerbaikan(){const id=document.getElementById('pilihLaptop').value;const tgl=document.getElementById('tglRusak').value;const p=document.getElementById('inputPerbaikan').value;const g=document.getElementById('inputPergantian').value;if(!id||!p){alert('Isi perbaikan');return;}const s=loadData();if(!s[id])s[id]={history:[],checklist:{}};if(!s[id].history)s[id].history=[];s[id].history.push({tgl,perbaikan:p,pergantian:g});saveData(s);closePerbaikan();render();}
+function hapusPerbaikan(id,i){if(!confirm('Hapus riwayat?'))return;const s=loadData();s[id].history.splice(i,1);saveData(s);render();}
+function batalPerbaikanTerakhir(id){const s=loadData();if(!s[id]?.history?.length)return;if(!confirm('Batalkan terakhir?'))return;s[id].history.pop();saveData(s);render();}
+function hapusSemuaPerbaikan(id){const s=loadData();if(!s[id]?.history?.length)return;if(!confirm('Hapus semua?'))return;s[id].history=[];saveData(s);render();}
+function sendWA(id){
+  const s=loadData();const d=s[id]||{};const j=getJadwal().find(x=>x.id===id);
+  let no=(d.wa||'').replace(/[^0-9]/g,'');
+  if(!no){alert('Isi WA dulu');return;}
+  if(no.startsWith('0'))no='62'+no.slice(1);
+  if(no.startsWith('8'))no='62'+no;
+  let pesan=`Selamat Siang, ${d.owner||'Ruang PELDOR'}.\n\nIzin, IT Support UTD PMI Kota Makassar mengkonfirmasi:\n\nPerangkat: *${id}*\nNo. Inv: ${d.inventaris||'-'}\nSpek: ${d.spek||'-'}\nJadwal: *${j.hari}, ${j.jam} WITA*\nKegiatan: Pemeliharaan Berkala Triwulan\n\nMohon perangkat disiapkan dan tidak digunakan selama proses pemeliharaan. Apabila ada kendala sebelum jadwal, mohon diinformasikan kepada kami.\n\nTerima kasih.\nIT Support UTD PMI Kota Makassar`;
+  const a=document.createElement('a');a.href=`https://wa.me/${no}?text=${encodeURIComponent(pesan)}`;a.target='_blank';document.body.appendChild(a);a.click();a.remove();
+}
+function resetDone(id){const s=loadData();if(s[id]){s[id].done=false;s[id].doneDate='';saveData(s);render();}}
+function filterList(f){filter=f;document.querySelectorAll('.filters button').forEach(b=>b.classList.remove('active'));event.target.classList.add('active');render();}
+function requestNotif(){if(!("Notification" in window)){alert("Tidak support");return;}Notification.requestPermission().then(p=>{if(p==="granted")alert("✅ Notif aktif");render();});}
+function exportExcel(){const jadwal=getJadwal();const s=loadData();let csv="ID,No Inventaris,Pemilik,WA,Spesifikasi,Tanggal Jadwal,Jam,Status,Tgl Selesai,Riwayat Perbaikan,Bukti Ceklist,Triwulan\n";jadwal.forEach(j=>{const d=s[j.id]||{};const st=(d.history?.length&&d.done)?'Selesai+Perbaikan':(d.history?.length?'Perbaikan':(d.done?'Selesai':'Belum'));const hist=(d.history||[]).map(h=>`[${h.tgl}] ${h.perbaikan} | ${h.pergantian}`).join(' || ');const cek=Object.entries(d.checklist||{}).map(([k,v])=>`${k}: ${Object.entries(v.items||{}).map(([a,b])=>a+'='+b).join(', ')}`).join(' || ');csv+=`"${j.id}","${d.inventaris||''}","${d.owner||''}","${d.wa||''}","${(d.spek||'').replace(/"/g,'""')}","${j.hari}","${j.jam}",${st},"${d.doneDate||''}","${hist.replace(/"/g,'""')}","${cek.replace(/"/g,'""')}","${triwulanAktif}"\n`;});const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Laporan_${getLabel()}_${triwulanAktif}.csv`;a.click();}
+autoLoad();
+</script>
+</body>
+</html>
